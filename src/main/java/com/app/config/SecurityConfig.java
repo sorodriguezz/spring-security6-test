@@ -32,32 +32,34 @@ import java.util.Set;
 @EnableMethodSecurity // hacer configuraciones con notaciones
 public class SecurityConfig {
 
-//    @Bean // sin notaciones
-//    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-//        return httpSecurity
-//                .csrf(csrf -> csrf.disable())
-//                .httpBasic(Customizer.withDefaults()) // solo cuando nos logueamos con user y pass
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .authorizeHttpRequests(http -> {
-//                    http.requestMatchers(HttpMethod.GET, "/auth/hello").permitAll(); // endp publicos
-//                    // Puede ser .hasAnyAuthority("CREATE", "DELETE") para dar varios valores
-//                    http.requestMatchers(HttpMethod.GET, "auth/hello-secured").hasAuthority("READ"); // endp privados
-//                    // endp no especificados, no ingresan
-//                    http.anyRequest().denyAll();
-//                    // endp no especificados, se tienen que loguear
-////                    http.anyRequest().authenticated();
-//                })
-//                .build();
-//    }
-
-    @Bean // con notaciones
+    @Bean // sin notaciones
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
-                .httpBasic(Customizer.withDefaults())
+                .httpBasic(Customizer.withDefaults()) // solo cuando nos logueamos con user y pass
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(http -> {
+                    http.requestMatchers(HttpMethod.GET, "/auth/get").permitAll(); // endp publicos
+
+                    http.requestMatchers(HttpMethod.POST, "/auth/post").hasAnyRole("ADMIN","DEVELOPER"); // endp privados
+                    http.requestMatchers(HttpMethod.PATCH, "/auth/patch").hasAnyAuthority("REFACTOR"); // endp privados
+
+                    // endp no especificados, no ingresan
+                    http.anyRequest().denyAll();
+                    // endp no especificados, se tienen que loguear
+                    // http.anyRequest().authenticated();
+                })
                 .build();
     }
+
+//    @Bean // con notaciones
+//    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+//        return httpSecurity
+//                .csrf(csrf -> csrf.disable())
+//                .httpBasic(Customizer.withDefaults())
+//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .build();
+//    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {

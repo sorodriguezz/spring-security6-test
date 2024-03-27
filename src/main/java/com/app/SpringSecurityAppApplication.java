@@ -9,6 +9,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.List;
 import java.util.Set;
@@ -39,7 +40,6 @@ public class SpringSecurityAppApplication {
             PermissionEntity refactorPermission = PermissionEntity.builder()
                     .name("REFACTOR")
                     .build();
-
             /* CREATE ROLES */
             RoleEntity roleAdmin = RoleEntity
                     .builder()
@@ -65,7 +65,7 @@ public class SpringSecurityAppApplication {
             UserEntity userSorodriguezz = UserEntity
                     .builder()
                     .username("sorodriguezz")
-                    .password("1234")
+                    .password(new BCryptPasswordEncoder().encode("1234"))
                     .isEnable(true)
                     .accountNoExpired(true)
                     .accountNoLocked(true)
@@ -75,7 +75,7 @@ public class SpringSecurityAppApplication {
             UserEntity userTest = UserEntity
                     .builder()
                     .username("usertest")
-                    .password("12345")
+                    .password(new BCryptPasswordEncoder().encode("12345"))
                     .isEnable(true)
                     .accountNoExpired(true)
                     .accountNoLocked(true)
@@ -85,7 +85,7 @@ public class SpringSecurityAppApplication {
             UserEntity userInvited = UserEntity
                     .builder()
                     .username("userinvited")
-                    .password("123")
+                    .password(new BCryptPasswordEncoder().encode("123"))
                     .isEnable(true)
                     .accountNoExpired(true)
                     .accountNoLocked(true)
@@ -95,7 +95,7 @@ public class SpringSecurityAppApplication {
             UserEntity userDev = UserEntity
                     .builder()
                     .username("userdev")
-                    .password("123456")
+                    .password(new BCryptPasswordEncoder().encode("123456"))
                     .isEnable(true)
                     .accountNoExpired(true)
                     .accountNoLocked(true)

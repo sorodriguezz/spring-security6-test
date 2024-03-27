@@ -17,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -39,6 +40,7 @@ public class SecurityConfig {
 //                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 //                .authorizeHttpRequests(http -> {
 //                    http.requestMatchers(HttpMethod.GET, "/auth/hello").permitAll(); // endp publicos
+//                    // Puede ser .hasAnyAuthority("CREATE", "DELETE") para dar varios valores
 //                    http.requestMatchers(HttpMethod.GET, "auth/hello-secured").hasAuthority("READ"); // endp privados
 //                    // endp no especificados, no ingresan
 //                    http.anyRequest().denyAll();
@@ -91,7 +93,8 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance(); // solo para hacer pruebas
-//        return new BCryptPasswordEncoder(); // en producción
+//        return NoOpPasswordEncoder.getInstance(); // solo para hacer pruebas, ya que no encripta las contraseñas
+        return new BCryptPasswordEncoder(); // en producción
     }
+
 }

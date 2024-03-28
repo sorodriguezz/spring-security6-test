@@ -1,7 +1,9 @@
 package com.app.config;
 
-import com.app.persistence.entity.UserEntity;
+import com.app.config.filter.JwtTokenValidator;
 import com.app.service.UserDetailServiceImpl;
+import com.app.utils.JwtUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,23 +16,18 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity // activar seguridad web
 @EnableMethodSecurity // hacer configuraciones con notaciones
 public class SecurityConfig {
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
     @Bean // sin notaciones
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -39,16 +36,19 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults()) // solo cuando nos logueamos con user y pass
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(http -> {
-                    http.requestMatchers(HttpMethod.GET, "/auth/get").permitAll(); // endp publicos
+//                    http.requestMatchers(HttpMethod.GET, "/method/hello").permitAll(); // endp publicos
+                    http.requestMatchers(HttpMethod.POST, "/auth/**").permitAll(); // endp publicos
 
-                    http.requestMatchers(HttpMethod.POST, "/auth/post").hasAnyRole("ADMIN","DEVELOPER"); // endp privados
-                    http.requestMatchers(HttpMethod.PATCH, "/auth/patch").hasAnyAuthority("REFACTOR"); // endp privados
+                    http.requestMatchers(HttpMethod.POST, "/method/hello").hasAnyRole("ADMIN","DEVELOPER"); // endp privados
+                    http.requestMatchers(HttpMethod.PATCH, "/method/hello").hasAnyAuthority("REFACTOR"); // endp privados
+                    http.requestMatchers(HttpMethod.GET, "/method/hello").hasAnyRole("INVITED"); // endp privados
 
                     // endp no especificados, no ingresan
                     http.anyRequest().denyAll();
                     // endp no especificados, se tienen que loguear
                     // http.anyRequest().authenticated();
                 })
+                .addFilterBefore(new JwtTokenValidator(jwtUtils), BasicAuthenticationFilter.class) // se ejecuta antes del filtro de autenticación
                 .build();
     }
 
